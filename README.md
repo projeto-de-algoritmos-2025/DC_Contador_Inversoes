@@ -138,7 +138,18 @@ Para o array [5, 2, 8, 1]:
 
 ## Screenshots
 
-*[Adicionar screenshots das diferentes telas do jogo]*
+![parte1](./img/parte1.png)
+
+![parte2](./img/parte2.png)
+
+![parte3](./img/parte3.png)
+
+![parte4](./img/parte4.png)
+
+![parte5](./img/parte5.png)
+
+![parte6](./img/parte6.png)
+
 
 1. **Menu Principal** - Seleção de dificuldade e opções
 2. **Entrada Customizada** - Interface para inserir números próprios  
