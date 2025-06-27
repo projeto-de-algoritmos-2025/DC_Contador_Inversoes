@@ -620,3 +620,350 @@ class JogoOrganizadorCaos:
                     texto_inv = FONTE_PEQUENA.render(f"Inversões encontradas: {passo['inversoes']}", True, VERMELHO)
                     TELA.blit(texto_inv, (50, y_atual))
         
+        # Botões de navegação
+        botao_anterior = pygame.Rect(50, ALTURA - 120, 150, 50)
+        cor_anterior = AZUL if self.passo_atual_solucao > 0 else CINZA
+        pygame.draw.rect(TELA, cor_anterior, botao_anterior)
+        pygame.draw.rect(TELA, PRETO, botao_anterior, 2)
+        
+        texto_anterior = FONTE_PEQUENA.render("ANTERIOR", True, BRANCO)
+        texto_anterior_rect = texto_anterior.get_rect(center=botao_anterior.center)
+        TELA.blit(texto_anterior, texto_anterior_rect)
+        
+        botao_proximo = pygame.Rect(220, ALTURA - 120, 150, 50)
+        cor_proximo = AZUL if self.passo_atual_solucao < len(self.passos_solucao) - 1 else CINZA
+        pygame.draw.rect(TELA, cor_proximo, botao_proximo)
+        pygame.draw.rect(TELA, PRETO, botao_proximo, 2)
+        
+        texto_proximo = FONTE_PEQUENA.render("PRÓXIMO", True, BRANCO)
+        texto_proximo_rect = texto_proximo.get_rect(center=botao_proximo.center)
+        TELA.blit(texto_proximo, texto_proximo_rect)
+        
+        # Botão voltar ao resultado
+        botao_voltar = pygame.Rect(LARGURA - 200, ALTURA - 120, 150, 50)
+        pygame.draw.rect(TELA, VERMELHO, botao_voltar)
+        pygame.draw.rect(TELA, PRETO, botao_voltar, 2)
+        
+        texto_voltar = FONTE_PEQUENA.render("VOLTAR", True, BRANCO)
+        texto_voltar_rect = texto_voltar.get_rect(center=botao_voltar.center)
+        TELA.blit(texto_voltar, texto_voltar_rect)
+        
+        # Algoritmo explicado
+        y_explicacao = 400
+        explicacao_titulo = FONTE_MEDIA.render("Como funciona o Merge Sort:", True, ROXO)
+        TELA.blit(explicacao_titulo, (500, y_explicacao))
+        
+        explicacoes = [
+            "1. Dividir: Quebra o array ao meio recursivamente",
+            "2. Conquistar: Ordena as metades separadamente", 
+            "3. Combinar: Junta as metades já ordenadas",
+            "4. Inversões: Conta quando elemento da direita",
+            "   é menor que elementos restantes da esquerda"
+        ]
+        
+        for i, explicacao in enumerate(explicacoes):
+            texto_exp = FONTE_PEQUENA.render(explicacao, True, PRETO)
+            TELA.blit(texto_exp, (500, y_explicacao + 40 + i * 25))
+        
+        return botao_anterior, botao_proximo, botao_voltar
+    
+    def desenhar_jogo(self):
+        """Desenha a tela do jogo"""
+        TELA.fill(BRANCO)
+        
+        # Título
+        titulo = FONTE_MEDIA.render(f"Organizador de Caos - {self.modo_dificuldade}", True, AZUL)
+        TELA.blit(titulo, (20, 20))
+        
+        # Informações do jogo
+        info_y = 70
+        
+        # Inversões
+        cor_inversoes = VERDE if self.inversoes_atuais == 0 else VERMELHO
+        texto_inversoes = FONTE_PEQUENA.render(f"Inversões: {self.inversoes_atuais} (inicial: {self.inversoes_iniciais})", True, cor_inversoes)
+        TELA.blit(texto_inversoes, (20, info_y))
+        
+        # Movimentos
+        cor_movimentos = VERMELHO if self.movimentos_restantes <= 3 else PRETO
+        texto_movimentos = FONTE_PEQUENA.render(f"Movimentos restantes: {self.movimentos_restantes}", True, cor_movimentos)
+        TELA.blit(texto_movimentos, (20, info_y + 30))
+        
+        # Progresso
+        if self.inversoes_iniciais > 0:
+            progresso = (self.inversoes_iniciais - self.inversoes_atuais) / self.inversoes_iniciais
+            pygame.draw.rect(TELA, CINZA, (20, info_y + 70, 300, 20))
+            pygame.draw.rect(TELA, VERDE, (20, info_y + 70, int(300 * progresso), 20))
+            texto_progresso = FONTE_PEQUENA.render(f"Progresso: {int(progresso * 100)}%", True, PRETO)
+            TELA.blit(texto_progresso, (330, info_y + 70))
+        
+        # Desenha elementos da sequência
+        largura_elemento = 80
+        altura_elemento = 60
+        espacamento = 10
+        total_largura = len(self.elementos) * largura_elemento + (len(self.elementos) - 1) * espacamento
+        inicio_x = (LARGURA - total_largura) // 2
+        inicio_y = 300
+        
+        for i, elemento in enumerate(self.elementos):
+            x = inicio_x + i * (largura_elemento + espacamento)
+            elemento.desenhar(TELA, x, inicio_y)
+        
+        # Instruções
+        instrucoes = [
+            "Clique em dois números para trocá-los",
+            "Objetivo: eliminar todas as inversões (ordem crescente)"
+        ]
+        
+        for i, instrucao in enumerate(instrucoes):
+            texto = FONTE_PEQUENA.render(instrucao, True, ROXO)
+            TELA.blit(texto, (20, 450 + i * 25))
+        
+        # Botão voltar ao menu
+        botao_menu = pygame.Rect(20, ALTURA - 80, 150, 50)
+        pygame.draw.rect(TELA, CINZA, botao_menu)
+        pygame.draw.rect(TELA, PRETO, botao_menu, 2)
+        texto_menu = FONTE_PEQUENA.render("VOLTAR MENU", True, BRANCO)
+        texto_menu_rect = texto_menu.get_rect(center=botao_menu.center)
+        TELA.blit(texto_menu, texto_menu_rect)
+        
+        return botao_menu, inicio_x, inicio_y, largura_elemento, altura_elemento, espacamento
+    
+    def desenhar_resultado(self):
+        """Desenha a tela de resultado"""
+        TELA.fill(BRANCO)
+        
+        # Título
+        if self.inversoes_atuais == 0:
+            titulo = "PARABÉNS! SEQUÊNCIA ORDENADA!"
+            cor_titulo = VERDE
+        else:
+            titulo = "TEMPO ESGOTADO!"
+            cor_titulo = VERMELHO
+        
+        texto_titulo = FONTE_GRANDE.render(titulo, True, cor_titulo)
+        titulo_rect = texto_titulo.get_rect(center=(LARGURA//2, 120))
+        TELA.blit(texto_titulo, titulo_rect)
+        
+        # Sequência original e final
+        seq_original_str = str(self.sequencia_original)[1:-1]
+        seq_atual_str = str(self.sequencia_atual)[1:-1]
+        
+        texto_orig = FONTE_PEQUENA.render(f"Sequência original: {seq_original_str}", True, PRETO)
+        TELA.blit(texto_orig, (50, 180))
+        
+        texto_atual = FONTE_PEQUENA.render(f"Sua sequência final: {seq_atual_str}", True, PRETO)
+        TELA.blit(texto_atual, (50, 210))
+        
+        # Estatísticas
+        stats = [
+            f"Inversões eliminadas: {self.inversoes_iniciais - self.inversoes_atuais} de {self.inversoes_iniciais}",
+            f"Movimentos utilizados: {self.movimentos_usados}",
+            f"Eficiência: {int((1 - self.movimentos_usados / (self.movimentos_restantes + self.movimentos_usados)) * 100)}%",
+            f"Dificuldade: {self.modo_dificuldade}",
+            "",
+            f"PONTUAÇÃO FINAL: {self.pontuacao}"
+        ]
+        
+        for i, stat in enumerate(stats):
+            cor = ROXO if "PONTUAÇÃO" in stat else PRETO
+            fonte = FONTE_MEDIA if "PONTUAÇÃO" in stat else FONTE_PEQUENA
+            if stat:  # Pula linhas vazias
+                texto = fonte.render(stat, True, cor)
+                texto_rect = texto.get_rect(center=(LARGURA//2, 270 + i * 30))
+                TELA.blit(texto, texto_rect)
+        
+        # Destaque para ver solução
+        destaque = FONTE_MEDIA.render("🔍 Veja como o Merge Sort resolve este problema!", True, AZUL)
+        destaque_rect = destaque.get_rect(center=(LARGURA//2, 450))
+        TELA.blit(destaque, destaque_rect)
+        
+        # Botões
+        botao_solucao = pygame.Rect(LARGURA//2 - 300, 500, 180, 60)
+        pygame.draw.rect(TELA, ROXO, botao_solucao)
+        pygame.draw.rect(TELA, PRETO, botao_solucao, 3)
+        
+        texto_solucao = FONTE_MEDIA.render("VER SOLUÇÃO", True, BRANCO)
+        texto_solucao_rect = texto_solucao.get_rect(center=botao_solucao.center)
+        TELA.blit(texto_solucao, texto_solucao_rect)
+        
+        botao_novo = pygame.Rect(LARGURA//2 - 90, 500, 180, 60)
+        pygame.draw.rect(TELA, VERDE, botao_novo)
+        pygame.draw.rect(TELA, PRETO, botao_novo, 3)
+        
+        texto_novo = FONTE_MEDIA.render("NOVO JOGO", True, BRANCO)
+        texto_novo_rect = texto_novo.get_rect(center=botao_novo.center)
+        TELA.blit(texto_novo, texto_novo_rect)
+        
+        botao_menu = pygame.Rect(LARGURA//2 + 120, 500, 180, 60)
+        pygame.draw.rect(TELA, AZUL, botao_menu)
+        pygame.draw.rect(TELA, PRETO, botao_menu, 3)
+        
+        texto_menu = FONTE_MEDIA.render("MENU", True, BRANCO)
+        texto_menu_rect = texto_menu.get_rect(center=botao_menu.center)
+        TELA.blit(texto_menu, texto_menu_rect)
+        
+        return botao_solucao, botao_novo, botao_menu
+    
+    def executar(self):
+        """Loop principal do jogo"""
+        clock = pygame.time.Clock()
+        rodando = True
+        
+        while rodando:
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    rodando = False
+                
+                elif evento.type == pygame.KEYDOWN:
+                    # Eventos de teclado para tela customizada
+                    if self.tela_atual == "CUSTOM" and self.texto_ativo:
+                        if evento.key == pygame.K_RETURN:
+                            # Enter confirma se entrada é válida
+                            if self.entrada_texto and self.processar_entrada_customizada(self.entrada_texto)[0]:
+                                self.modo_dificuldade = "CUSTOM"
+                                self.reset_jogo()
+                                self.tela_atual = "MENU"
+                        elif evento.key == pygame.K_BACKSPACE:
+                            self.entrada_texto = self.entrada_texto[:-1]
+                        elif evento.key == pygame.K_ESCAPE:
+                            self.tela_atual = "MENU"
+                        else:
+                            # Adiciona caractere se for válido
+                            if len(self.entrada_texto) < 50:  # Limite de caracteres
+                                char = evento.unicode
+                                if char.isprintable():
+                                    self.entrada_texto += char
+                
+                elif evento.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+                    
+                    if self.tela_atual == "MENU":
+                        botoes_dificuldade, botao_iniciar, botao_custom = self.desenhar_menu()
+                        
+                        # Verifica clique em dificuldade
+                        for bx, by, bl, ba, modo in botoes_dificuldade:
+                            if bx <= x <= bx + bl and by <= y <= by + ba:
+                                self.modo_dificuldade = modo
+                                if modo == "CUSTOM" and not self.sequencia_customizada:
+                                    self.tela_atual = "CUSTOM"
+                                    self.entrada_texto = ""
+                                    self.texto_ativo = True
+                                else:
+                                    self.reset_jogo()
+                        
+                        # Verifica clique em iniciar
+                        if botao_iniciar.collidepoint(x, y):
+                            if self.modo_dificuldade == "CUSTOM" and not self.sequencia_customizada:
+                                self.tela_atual = "CUSTOM"
+                                self.entrada_texto = ""
+                                self.texto_ativo = True
+                            else:
+                                self.tela_atual = "JOGO"
+                        
+                        # Verifica clique em números customizados
+                        elif botao_custom.collidepoint(x, y):
+                            self.tela_atual = "CUSTOM"
+                            self.entrada_texto = ""
+                            self.texto_ativo = True
+                    
+                    elif self.tela_atual == "CUSTOM":
+                        campo_entrada, botao_confirmar, botao_voltar = self.desenhar_tela_customizada()
+                        
+                        # Verifica clique no campo de entrada
+                        if campo_entrada.collidepoint(x, y):
+                            self.texto_ativo = True
+                        else:
+                            self.texto_ativo = False
+                        
+                        # Verifica clique nos botões
+                        if botao_confirmar.collidepoint(x, y):
+                            if self.entrada_texto and self.processar_entrada_customizada(self.entrada_texto)[0]:
+                                self.modo_dificuldade = "CUSTOM"
+                                self.reset_jogo()
+                                self.tela_atual = "MENU"
+                        elif botao_voltar.collidepoint(x, y):
+                            self.tela_atual = "MENU"
+                    
+                    elif self.tela_atual == "JOGO" and not self.jogo_terminado:
+                        botao_menu, inicio_x, inicio_y, largura_elemento, altura_elemento, espacamento = self.desenhar_jogo()
+                        
+                        # Verifica clique no botão menu
+                        if botao_menu.collidepoint(x, y):
+                            self.tela_atual = "MENU"
+                            continue
+                        
+                        # Verifica clique nos elementos
+                        elemento_clicado = None
+                        for i, elemento in enumerate(self.elementos):
+                            elem_x = inicio_x + i * (largura_elemento + espacamento)
+                            if elemento.contem_ponto(x, y, elem_x, inicio_y):
+                                elemento_clicado = i
+                                break
+                        
+                        if elemento_clicado is not None:
+                            if self.elemento_selecionado is None:
+                                # Primeiro clique - seleciona elemento
+                                self.elemento_selecionado = elemento_clicado
+                                self.elementos[elemento_clicado].selecionado = True
+                            else:
+                                # Segundo clique - faz a troca
+                                if elemento_clicado != self.elemento_selecionado:
+                                    self.trocar_elementos(self.elemento_selecionado, elemento_clicado)
+                                
+                                # Desmarca seleção
+                                self.elementos[self.elemento_selecionado].selecionado = False
+                                self.elemento_selecionado = None
+                        else:
+                            # Clique fora - desmarca seleção
+                            if self.elemento_selecionado is not None:
+                                self.elementos[self.elemento_selecionado].selecionado = False
+                                self.elemento_selecionado = None
+                    
+                    elif self.tela_atual == "RESULTADO":
+                        botao_solucao, botao_novo, botao_menu = self.desenhar_resultado()
+                        
+                        if botao_solucao.collidepoint(x, y):
+                            self.passo_atual_solucao = 0
+                            self.tela_atual = "SOLUCAO"
+                        elif botao_novo.collidepoint(x, y):
+                            self.reset_jogo()
+                            self.tela_atual = "JOGO"
+                        elif botao_menu.collidepoint(x, y):
+                            self.tela_atual = "MENU"
+                    
+                    elif self.tela_atual == "SOLUCAO":
+                        botao_anterior, botao_proximo, botao_voltar = self.desenhar_visualizacao_solucao()
+                        
+                        if botao_anterior.collidepoint(x, y) and self.passo_atual_solucao > 0:
+                            self.passo_atual_solucao -= 1
+                        elif botao_proximo.collidepoint(x, y) and self.passo_atual_solucao < len(self.passos_solucao) - 1:
+                            self.passo_atual_solucao += 1
+                        elif botao_voltar.collidepoint(x, y):
+                            self.tela_atual = "RESULTADO"
+            
+            # Verifica se o jogo terminou
+            if self.tela_atual == "JOGO" and self.jogo_terminado:
+                self.tela_atual = "RESULTADO"
+            
+            # Desenha a tela atual
+            if self.tela_atual == "MENU":
+                self.desenhar_menu()
+            elif self.tela_atual == "CUSTOM":
+                self.desenhar_tela_customizada()
+            elif self.tela_atual == "JOGO":
+                self.desenhar_jogo()
+            elif self.tela_atual == "RESULTADO":
+                self.desenhar_resultado()
+            elif self.tela_atual == "SOLUCAO":
+                self.desenhar_visualizacao_solucao()
+            
+            pygame.display.flip()
+            clock.tick(60)
+        
+        pygame.quit()
+        sys.exit()
+
+# Executa o jogo
+if __name__ == "__main__":
+    jogo = JogoOrganizadorCaos()
+    jogo.executar()
