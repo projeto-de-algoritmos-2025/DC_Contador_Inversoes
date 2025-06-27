@@ -177,4 +177,4 @@ cont_inversoes/
 - [Artigo sobre Merge Sort](https://en.wikipedia.org/wiki/Merge_sort)
 - [Algoritmos de Divisão e Conquista](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm)
 
-[Video Apresentação](link)
+[Video Apresentação](https://youtu.be/q_aPg5kO-IE)
