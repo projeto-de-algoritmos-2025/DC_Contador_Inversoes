@@ -135,4 +135,38 @@ class ContadorInversoes:
         passos_merge.append(passo_final)
         
         return resultado, inversoes, passos_merge
-   
+    
+    @staticmethod
+    def merge_sort_e_conta(arr):
+        """Versão original para compatibilidade"""
+        if len(arr) <= 1:
+            return arr, 0
+        
+        meio = len(arr) // 2
+        esquerda, inv_esq = ContadorInversoes.merge_sort_e_conta(arr[:meio])
+        direita, inv_dir = ContadorInversoes.merge_sort_e_conta(arr[meio:])
+        
+        resultado, inv_split = ContadorInversoes.merge_e_conta(esquerda, direita)
+        
+        return resultado, inv_esq + inv_dir + inv_split
+    
+    @staticmethod
+    def merge_e_conta(esquerda, direita):
+        """Versão original para compatibilidade"""
+        resultado = []
+        inversoes = 0
+        i = j = 0
+        
+        while i < len(esquerda) and j < len(direita):
+            if esquerda[i] <= direita[j]:
+                resultado.append(esquerda[i])
+                i += 1
+            else:
+                resultado.append(direita[j])
+                inversoes += len(esquerda) - i
+                j += 1
+        
+        resultado.extend(esquerda[i:])
+        resultado.extend(direita[j:])
+        
+        return resultado, inversoes
